@@ -9,44 +9,44 @@ import com.example.MovieTicket.MovieBooking.Exceptions.IdAlreadyExist;
 import com.example.MovieTicket.MovieBooking.Exceptions.IdNotFound;
 import com.example.MovieTicket.MovieBooking.Model.Movie;
 import com.example.MovieTicket.MovieBooking.communicator.RatingRestCommunicator;
+import com.example.MovieTicket.MovieBooking.dal.MovieBookingDAL;
 @Service
 public class MovieService implements MovieServiceInterface{
 	
-	List<Movie> movies=new ArrayList<Movie>();
-	HashMap<String,Movie> movieMap=new HashMap<>();
 	@Autowired
 	RatingRestCommunicator ratingRestCommunicator;
+	@Autowired
+	MovieBookingDAL movieBookingDAL;
 
 	@Override
 	public List<Movie> getAllMovies() {
 		// TODO Auto-generated method stub
-		return movies;
+		return movieBookingDAL.getAllMovies();
 	}
 
 	@Override
 	public void createMovie(Movie movie) {
 		// TODO Auto-generated method stub
-		 for (Movie existingMovie : movies) {
-	            if (existingMovie.getId().equals(movie.getId())) {
-	                throw new IdAlreadyExist("Movie with ID " + movie.getId() + " already exists.");
-	            }
-	        }
 		String movieId=movie.getId();
-		movies.add(movie);
-		movieMap.put(movieId, movie);
+		Movie oldMovie= movieBookingDAL.getMovieById(movieId);
+		// TODO Auto-generated method stub
+		if (oldMovie!=null) {
+		    throw new IdAlreadyExist("Id Already exists");
+		}
+		movieBookingDAL.createMovie(movie);
 		
 		HashMap<String,Long> ratingMap=new HashMap<>();
-		ratingMap.put(movie.getId(), movie.getMovieRating());
+		ratingMap.put(movieId, movie.getMovieRating());
 		ratingRestCommunicator.addRating(ratingMap);
 	}
 
 	@Override
 	public Movie getMovieById(String id) {
+		Movie movie= movieBookingDAL.getMovieById(id);
 		// TODO Auto-generated method stub
-		if (!(movieMap.containsKey(id))) {
+		if (movie==null) {
 		    throw new IdNotFound("Id Not Found");
 		}
-		Movie movie= movieMap.get(id);
 		movie.setMovieRating(ratingRestCommunicator.getRating(id));
 		return movie;
 	}
@@ -54,31 +54,24 @@ public class MovieService implements MovieServiceInterface{
 	@Override
 	public void deleteMovie(String id) {
 		// TODO Auto-generated method stub
-		if (!(movieMap.containsKey(id))) {
+		Movie movie= movieBookingDAL.getMovieById(id);
+		// TODO Auto-generated method stub
+		if (movie==null) {
 		    throw new IdNotFound("Id Not Found");
 		}
-		Movie movie=movieMap.get(id);
-		movies.remove(movie);
-		movieMap.remove(id);
+		movieBookingDAL.deleteMovie(id);
 		ratingRestCommunicator.deleteRating(id);
 	}
 
 	@Override
 	public void updateMovieById(Movie topic,String id) {
 		// TODO Auto-generated method stub
-		if (!(movieMap.containsKey(id))) {
+		Movie movie= movieBookingDAL.getMovieById(id);
+		// TODO Auto-generated method stub
+		if (movie==null) {
 		    throw new IdNotFound("Id Not Found");
 		}
-//		it is recommended to go this way of modifying existing obj than delete it and adds new one as it 
-//		aligns well with put method where the other is actually post method
-		Movie movie=movieMap.get(id);
-		 movie.setMovieName(topic.getMovieName());
-	        movie.setMovieDirector(topic.getMovieDirector());
-	        movie.setMovieRating(topic.getMovieRating());
-	        movie.setMovieLanguage(topic.getMovieLanguage());
-	        movie.setWriters(topic.getWriters());
-	        movie.setActors(topic.getActors());
-	        movie.setGenre(topic.getGenre());
+		movieBookingDAL.updateMovieById(topic, id);
 		
 		HashMap<String,Long> ratingMap=new HashMap<>();
 		ratingMap.put(topic.getId(), topic.getMovieRating());
