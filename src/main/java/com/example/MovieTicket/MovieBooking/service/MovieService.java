@@ -21,7 +21,11 @@ public class MovieService implements MovieServiceInterface{
 	@Override
 	public List<Movie> getAllMovies() {
 		// TODO Auto-generated method stub
-		return movieBookingDAL.getAllMovies();
+		List<Movie> moviesList= movieBookingDAL.getAllMovies();
+		for(Movie movie:moviesList) {
+			movie.setMovieRating(ratingRestCommunicator.getRating(movie.getId()));
+		}
+		return moviesList;
 	}
 
 	@Override

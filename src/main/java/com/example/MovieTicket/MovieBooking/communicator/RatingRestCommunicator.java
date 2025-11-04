@@ -30,7 +30,7 @@ public void updateRating(Map< String,Long> ratingsMap) {
 	restTemplate.exchange(url, HttpMethod.PUT,request,Long.class);
 }
 public void deleteRating(String id) {
-	String url=baseUrl+"/id"+id;
+	String url=baseUrl+"/id/"+id;
 	restTemplate.exchange(url, HttpMethod.DELETE,null,Long.class);
 }
 }

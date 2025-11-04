@@ -17,6 +17,11 @@ public class MovieBookingDALImpl implements MovieBookingDAL {
 	List<Movie> movies = new ArrayList<Movie>();
 	HashMap<String, Movie> movieMap = new HashMap<>();
 
+//	as the communicator is one way any changes in the rating wont be updated in movie except via get method 
+//	from rating to movie but it is possible in viceversa in all ways
+
+//	if i delete a rating and the respective movie exist then it will cause error when we try to fetch that
+//	movie as it goes to fetch the movie's rating which doesnot exist
 
 	@Override
 	public List<Movie> getAllMovies() {
@@ -36,9 +41,9 @@ public class MovieBookingDALImpl implements MovieBookingDAL {
 	@Override
 	public Movie getMovieById(String id) {
 		// TODO Auto-generated method stub
-		
+
 		Movie movie = movieMap.get(id);
-		
+
 		return movie;
 	}
 
